@@ -19,8 +19,8 @@ def chart():
 @app.route('/refreshData')
 def refresh_graph_data():
     global labels, values
-    print("labels now: " + str(labels))
-    print("data now: " + str(values))
+    #print("labels now: " + str(labels))
+    #print("data now: " + str(values))
     return jsonify(sLabel=labels, sData=values)
 
 
@@ -31,8 +31,10 @@ def update_data_post():
         return "error",400
     labels = ast.literal_eval(request.form['label'])
     values = ast.literal_eval(request.form['data'])
-    print("labels received: " + str(labels))
-    print("data received: " + str(values))
+    #print(request.form['label'].decode("utf-8"))
+    #print(request.form['data'].decode("utf-8"))
+    #print("labels received: " + str(labels))
+    #print("data received: " + str(values))
     return "success",201
 
 

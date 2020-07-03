@@ -35,6 +35,7 @@ def send_df_to_dashboard(df):
     tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
     # initialize and send the data through REST API
     url = 'http://localhost:5001/updateData'
+    #request_data = {'label': ["Aman" , "Tanu"], 'data': ["5" , "4"]}
     request_data = {'label': str(top_tags), 'data': str(tags_count)}
     response = requests.post(url, data=request_data)
 
@@ -45,9 +46,10 @@ def process_rdd(time, rdd):
         # Get spark sql singleton context from the current context
         sql_context = get_sql_context_instance(rdd.context)
         # convert the RDD to Row RDD
-        row_rdd = rdd.map(lambda w: Row(hashtag=w[0].encode("utf-8"), hashtag_count=w[1]))
+        row_rdd = rdd.map(lambda w: Row(hashtag=w[0], hashtag_count=w[1]))
         # create a DF from the Row RDD
         hashtags_df = sql_context.createDataFrame(row_rdd)
+        print(hashtags_df)
         # Register the dataframe as table
         hashtags_df.registerTempTable("hashtags")
         # get the top 10 hashtags from the table using SQL and print them
@@ -63,7 +65,9 @@ def process_rdd(time, rdd):
 words = dataStream.flatMap(lambda line: line.split(" "))
 # filter the words to get only hashtags, then map each hashtag to be a pair of (hashtag,1)
 #hashtags = words.map(lambda x: (x, 1))
-hashtags = words.filter(lambda w: '#' in w).map(lambda x: (x, 1))
+#hashtags = words.filter(lambda w: '#' in w).map(lambda x: (x, 1))
+
+hashtags = words.filter(lambda w: w.startswith('#')).map(lambda x: (x, 1))
 # adding the count of each hashtag to its last count
 tags_totals = hashtags.updateStateByKey(aggregate_tags_count)
 # do processing for each RDD generated in each interval
