@@ -5,10 +5,10 @@ import requests_oauthlib
 import json
 
 # Replace the values below with yours
-ACCESS_TOKEN = '1464757897-fFwBQQOPFp6uIiBO7RAKEvr1gLLxwYWVb4ZQSjG'
-ACCESS_SECRET = 'SXFfvVqxu0ARMADFBSXit4muWuTS37DZlKNGsv8ulgv4m'
-CONSUMER_KEY = 's3NZKvRW75Ec1n5Amppe4zjLv'
-CONSUMER_SECRET = 'E20pKAcxUrqArrvhoLHj2W8teCcCEiAtlGLtFKeg2sRFMu7r9i'
+ACCESS_TOKEN = ''
+ACCESS_SECRET = ''
+CONSUMER_KEY = ''
+CONSUMER_SECRET = ''
 my_auth = requests_oauthlib.OAuth1(CONSUMER_KEY, CONSUMER_SECRET,ACCESS_TOKEN, ACCESS_SECRET)
 
 
@@ -17,11 +17,12 @@ def send_tweets_to_spark(http_resp, tcp_connection):
         try:
             full_tweet = json.loads(line)
             full_tweet = full_tweet['text']
+            full_tweet = full_tweet.replace('\n', ' ').replace('\r', '')
             full_tweet = full_tweet + '\n'
             tweet_text = full_tweet.encode() # pyspark can't accept stream, add '\n'
             #print("Tweet Text: " + tweet_text)
             #print ("------------------------------------------")
-            tcp_connection.send(tweet_text );
+            tcp_connection.send(tweet_text);
         except:
             e = sys.exc_info()[0]
             print("Error: %s" % e)
